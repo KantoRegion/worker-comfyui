@@ -40,14 +40,28 @@ ENV PATH="/opt/venv/bin:${PATH}"
 # Install comfy-cli + dependencies needed by it to install ComfyUI
 RUN uv pip install comfy-cli pip setuptools wheel
 
+ENV COMFYUI_DIR=/comfyui
+ENV COMFYUI_USER_CONFIG_DIR=${COMFYUI_DIR}/user/default/ComfyUI-Manager
+
 # Install ComfyUI
-RUN /usr/bin/yes | comfy --workspace /comfyui install --version 0.3.43 --cuda-version 12.6 --nvidia
+RUN /usr/bin/yes | comfy --workspace /comfyui --skip-prompt --no-enable-telemetry \
+    install --version 0.3.43 --cuda-version 12.6 --nvidia
+
 
 # Change working directory to ComfyUI
 WORKDIR /comfyui
 
 # Support for the network volume
 ADD src/extra_model_paths.yaml ./
+
+# Modify config.ini
+RUN mkdir -p ${COMFYUI_USER_CONFIG_DIR}
+
+COPY src/config.ini ${COMFYUI_USER_CONFIG_DIR}/config.ini
+COPY src/deps.json ${COMFYUI_USER_CONFIG_DIR}/deps.json
+
+# Install custom nodes
+RUN comfy --workspace /comfyui node install-deps --deps=${COMFYUI_USER_CONFIG_DIR}/deps.json
 
 # Go back to the root
 WORKDIR /
@@ -56,7 +70,7 @@ WORKDIR /
 RUN uv pip install runpod requests websocket-client
 
 # Add application code and scripts
-ADD src/start.sh handler.py test_input.json ./
+ADD src/start.sh src/handler.py test_input.json ./
 RUN chmod +x /start.sh
 
 # Add script to install custom nodes

@@ -1,16 +1,27 @@
 services:
   comfyui-worker:
-    image: runpod/worker-comfyui:dev
+    image: duodecanol/worker-comfyui:latest-base
     pull_policy: never
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: all
+              count: 1
               capabilities: [gpu]
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /src
+          ignore:
+            - node_modules/
+            - .venv/
+        - action: rebuild
+          path: Dockerfile
     environment:
-      - SERVE_API_LOCALLY=true
+      SERVE_API_LOCALLY: true
+      COMFY_VRAM_MANAGEMENT_MODE: lowvram
     ports:
       - "8000:8000"
       - "8188:8188"
