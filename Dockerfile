@@ -45,7 +45,7 @@ ENV COMFYUI_USER_CONFIG_DIR=${COMFYUI_DIR}/user/default/ComfyUI-Manager
 
 # Install ComfyUI
 RUN /usr/bin/yes | comfy --workspace /comfyui --skip-prompt --no-enable-telemetry \
-    install --version 0.3.43 --cuda-version 12.6 --nvidia
+    install --version 0.3.57 --cuda-version 12.6 --nvidia
 
 
 # Change working directory to ComfyUI
