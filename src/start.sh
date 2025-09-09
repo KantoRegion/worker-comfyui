@@ -15,6 +15,8 @@ echo "worker-comfyui: Starting ComfyUI"
 # ComfyUI VRAM Management Mode
 # https://docs.comfy.org/interface/settings/server-config#vram-management-mode
 : "${COMFY_VRAM_MANAGEMENT_MODE:=auto}"
+: "${COMFY_PROMPT_METADATA:=disabled}"
+
 
 # Serve the API and don't shutdown the container
 if [ "$SERVE_API_LOCALLY" == "true" ]; then
@@ -22,7 +24,8 @@ if [ "$SERVE_API_LOCALLY" == "true" ]; then
     comfy --workspace /comfyui launch -- \
         --"${COMFY_VRAM_MANAGEMENT_MODE}" \
         --disable-auto-launch \
-        --disable-metadata --verbose "${COMFY_LOG_LEVEL}" --log-stdout \
+        $( if [ "$COMFY_PROMPT_METADATA" == "disabled" ]; then echo "--disable-metadata"; fi ) \
+        --verbose "${COMFY_LOG_LEVEL}" --log-stdout \
         --async-offload \
         --mmap-torch-files \
         --fast \
@@ -40,7 +43,8 @@ else
     comfy --workspace /comfyui launch -- \
         --"${COMFY_VRAM_MANAGEMENT_MODE}" \
         --disable-auto-launch \
-        --disable-metadata --verbose "${COMFY_LOG_LEVEL}" --log-stdout \
+        $( if [ "$COMFY_PROMPT_METADATA" == "disabled" ]; then echo "--disable-metadata"; fi ) \
+        --verbose "${COMFY_LOG_LEVEL}" --log-stdout \
         --async-offload \
         --mmap-torch-files \
         --fast \
