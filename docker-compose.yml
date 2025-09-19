@@ -22,7 +22,13 @@ services:
     environment:
       SERVE_API_LOCALLY: true
       COMFY_VRAM_MANAGEMENT_MODE: lowvram
-      COMFY_PROMPT_METADATA: enabled
+      COMFY_SERVER_CONFIG: |
+        --async-offload
+        --mmap-torch-files
+        --fast
+        --cuda-malloc
+        --supports-fp8-compute
+        --use-pytorch-cross-attention
     ports:
       - "8000:8000"
       - "8188:8188"

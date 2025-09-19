@@ -16,22 +16,15 @@ echo "worker-comfyui: Starting ComfyUI"
 # https://docs.comfy.org/interface/settings/server-config#vram-management-mode
 : "${COMFY_VRAM_MANAGEMENT_MODE:=auto}"
 : "${COMFY_PROMPT_METADATA:=disabled}"
+: "${COMFY_SERVER_CONFIG:=}"
 
 
 # Serve the API and don't shutdown the container
 if [ "$SERVE_API_LOCALLY" == "true" ]; then
     # python -u /comfyui/main.py --disable-auto-launch --disable-metadata --listen --verbose "${COMFY_LOG_LEVEL}" --log-stdout &
     comfy --workspace /comfyui launch -- \
-        --"${COMFY_VRAM_MANAGEMENT_MODE}" \
-        --disable-auto-launch \
-        $( if [ "$COMFY_PROMPT_METADATA" == "disabled" ]; then echo "--disable-metadata"; fi ) \
+        --disable-auto-launch ${COMFY_SERVER_CONFIG} \
         --verbose "${COMFY_LOG_LEVEL}" --log-stdout \
-        --async-offload \
-        --mmap-torch-files \
-        --fast \
-        --cuda-malloc \
-        --supports-fp8-compute \
-        --use-pytorch-cross-attention \
         --port 8188 \
         --listen \
         --cuda-device 0 &
@@ -41,16 +34,8 @@ if [ "$SERVE_API_LOCALLY" == "true" ]; then
 else
     # python -u /comfyui/main.py --disable-auto-launch --disable-metadata --verbose "${COMFY_LOG_LEVEL}" --log-stdout &
     comfy --workspace /comfyui launch -- \
-        --"${COMFY_VRAM_MANAGEMENT_MODE}" \
-        --disable-auto-launch \
-        $( if [ "$COMFY_PROMPT_METADATA" == "disabled" ]; then echo "--disable-metadata"; fi ) \
+        --disable-auto-launch ${COMFY_SERVER_CONFIG} \
         --verbose "${COMFY_LOG_LEVEL}" --log-stdout \
-        --async-offload \
-        --mmap-torch-files \
-        --fast \
-        --cuda-malloc \
-        --supports-fp8-compute \
-        --use-pytorch-cross-attention \
         --port 8188 \
         --cuda-device 0 &
 
